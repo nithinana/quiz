@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study Hub</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      color: #333;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .dark-mode {
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+
+    #sidebar {
+      width: 250px;
+      background-color: #f8f9fa;
+      padding: 1.5rem;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .dark-mode #sidebar {
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+    }
+
+    #main {
+      flex: 1;
+      padding: 2rem;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-y: auto;
+    }
+
+    .dark-mode #main {
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+
+    .sidebar-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .sidebar-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .dark-mode .sidebar-title {
+      color: #e0e0e0;
+      border-bottom-color: #333;
+    }
+
+    #quizToggle {
+      background-color: #4a6bdf;
+      color: white;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.2s;
+      margin-bottom: 1rem;
+    }
+
+    #quizToggle:hover {
+      background-color: #3a56c0;
+    }
+
+    .file-upload {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      border: 2px dashed #ced4da;
+      border-radius: 8px;
+      background-color: #f8f9fa;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      text-align: center;
+      min-height: 100px;
+    }
+
+    .dark-mode .file-upload {
+      background-color: #1e1e1e;
+      border-color: #333;
+    }
+
+    .file-upload:hover {
+      border-color: #4a6bdf;
+      background-color: #f0f4ff;
+    }
+
+    .dark-mode .file-upload:hover {
+      background-color: #2a2a2a;
+    }
+
+    .file-upload.active {
+      border-color: #4a6bdf;
+      background-color: #e7f0ff;
+    }
+
+    .file-upload-icon {
+      font-size: 2rem;
+      color: #4a6bdf;
+      margin-bottom: 0.5rem;
+    }
+
+    .file-upload-text {
+      font-size: 0.9rem;
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+
+    .dark-mode .file-upload-text {
+      color: #e0e0e0;
+    }
+
+    .file-upload-hint {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+
+    .dark-mode .file-upload-hint {
+      color: #aaa;
+    }
+
+    #fileInput {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+    }
+
+    #fileName {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #4a6bdf;
+      font-weight: 500;
+      word-break: break-all;
+    }
+
+    #learnBtn {
+      background-color: #4a6bdf;
+      color: white;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.2s;
+    }
+
+    #learnBtn:hover {
+      background-color: #3a56c0;
+    }
+
+    .question-link {
+      display: block;
+      padding: 0.6rem 0.8rem;
+      margin: 0.2rem 0;
+      cursor: pointer;
+      color: #495057;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .dark-mode .question-link {
+      color: #e0e0e0;
+    }
+
+    .question-link:hover, .question-link.active {
+      background-color: #e9ecef;
+      color: #4a6bdf;
+    }
+
+    .dark-mode .question-link:hover, 
+    .dark-mode .question-link.active {
+      background-color: #333;
+      color: #4a6bdf;
+    }
+
+    #questionList {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+
+    .option {
+      display: block;
+      margin: 0.5rem 0;
+      padding: 0.8rem 1rem;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .dark-mode .option {
+      border-color: #333;
+      background-color: #1e1e1e;
+    }
+
+    .option:hover {
+      background-color: #f8f9fa;
+    }
+
+    .dark-mode .option:hover {
+      background-color: #2a2a2a;
+    }
+
+    .option.selected {
+      border: 2px solid #4a6bdf;
+      background-color: #e7f0ff;
+    }
+
+    .dark-mode .option.selected {
+      background-color: #2a3a6a;
+    }
+
+    .option.correct {
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+      color: #155724;
+    }
+
+    .dark-mode .option.correct {
+      background-color: #1e3e1e;
+      border-color: #2e5e2e;
+      color: #c8e6c9;
+    }
+
+    .option.incorrect {
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
+    }
+
+    .dark-mode .option.incorrect {
+      background-color: #3e1e1e;
+      border-color: #5e2e2e;
+      color: #e6c8c8;
+    }
+
+    #quizControls {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    #submitBtn, #nextButton, #retryButton {
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    #submitBtn {
+      background-color: #28a745;
+      color: white;
+      display: none;
+    }
+
+    #submitBtn:hover {
+      background-color: #218838;
+    }
+
+    #submitBtn:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+
+    #nextButton {
+      background-color: #4a6bdf;
+      color: white;
+      display: none;
+    }
+
+    #nextButton:hover {
+      background-color: #3a56c0;
+    }
+
+    #retryButton {
+      background-color: #dc3545;
+      color: white;
+      display: none;
+    }
+
+    #retryButton:hover {
+      background-color: #c82333;
+    }
+
+    #quizContainer {
+      display: none;
+    }
+
+    #quizContainer h2 {
+      color: #2c3e50;
+      margin-bottom: 1.5rem;
+    }
+
+    .dark-mode #quizContainer h2 {
+      color: #e0e0e0;
+    }
+
+    .feedback {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .feedback.correct {
+      background-color: #d4edda;
+      color: #155724;
+      display: block;
+    }
+
+    .dark-mode .feedback.correct {
+      background-color: #1e3e1e;
+      color: #c8e6c9;
+    }
+
+    .feedback.incorrect {
+      background-color: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+
+    .dark-mode .feedback.incorrect {
+      background-color: #3e1e1e;
+      color: #e6c8c8;
+    }
+
+    /* Exam Countdown Styles */
+    #examCountdownContainer {
+      width: 100%;
+    }
+
+    .exam {
+      margin: 15px 0;
+      padding: 15px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .dark-mode .exam {
+      background: #1e1e1e;
+      border-color: #333;
+    }
+
+    .exam-title {
+      font-size: 1.2em;
+      color: #007bff;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .exam-title:hover {
+      color: #0056b3;
+    }
+
+    .exam-date {
+      font-size: 0.95em;
+      color: #777;
+      margin-bottom: 10px;
+    }
+
+    .dark-mode .exam-date {
+      color: #aaa;
+    }
+
+    .countdown {
+      font-size: 1.05em;
+      color: #555;
+    }
+
+    .dark-mode .countdown {
+      color: #bbb;
+    }
+
+    .view-toggle {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+      gap: 1rem;
+    }
+
+    .view-toggle button {
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #darkModeToggle {
+      background-color: #007bff;
+      color: #fff;
+      width: 100%;
+    }
+
+    #darkModeToggle:hover {
+      background-color: #0056b3;
+    }
+
+    #viewToggle {
+      background-color: #28a745;
+      color: #fff;
+      width: 100%;
+    }
+
+    #viewToggle:hover {
+      background-color: #218838;
+    }
+
+    .half-term {
+      text-align: center;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #dc3545;
+      margin: 30px 0 10px;
+    }
+
+    .dark-mode .half-term {
+      color: #ff6b6b;
+    }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <button id="quizToggle">Switch to Quiz</button>
+    
+    <div class="sidebar-section">
+      <div class="sidebar-title">Upload Quiz File</div>
+      <div class="file-upload" id="fileUploadArea">
+        <div class="file-upload-icon">📁</div>
+        <div class="file-upload-text">Drag & drop your quiz file here</div>
+        <div class="file-upload-hint">or click to browse</div>
+        <input type="file" id="fileInput" accept=".txt" />
+        <div id="fileName"></div>
+      </div>
+    </div>
+    
+    <div class="sidebar-section">
+      <button id="learnBtn">Start Learning Session</button>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="sidebar-title">Questions</div>
+      <div id="questionList"></div>
+    </div>
+  </div>
+  
+  <div id="main">
+    <div id="examCountdownContainer">
+      <h1>Exam Countdown</h1>
+
+      <div class="view-toggle">
+        <button id="darkModeToggle">Toggle Dark Mode</button>
+        <button id="viewToggle">View all exams</button>
+      </div>
+
+      <div id="exams"></div>
+    </div>
+    
+    <div id="quizContainer">
+      <h2>Welcome to the Quiz Generator!</h2>
+      <p>Please upload a quiz file to begin.</p>
+    </div>
+    <div id="quizControls">
+      <button id="submitBtn">Submit Answer</button>
+      <button id="retryButton">Retry</button>
+      <button id="nextButton">Next Question</button>
+    </div>
+    <div id="feedback" class="feedback"></div>
+  </div>
+
+  <script>
+    // Exam Countdown Data and Functions
+    const exams = [
+      { name: "Sociology Paper 1 (and luchis birthday)", date: "2025-05-09T09:00:00", subject: "Sociology", specLink: "/countdown/specs/Sociology.pdf" },
+      { name: "English Literature Paper 1", date: "2025-05-12T09:00:00", subject: "English Literature", specLink: "/countdown/specs/english-literature.PDF" },
+      { name: "Biology Paper 1", date: "2025-05-13T09:00:00", subject: "Biology", specLink: "/countdown/specs/Biology.pdf" },
+      { name: "Geography Paper 1", date: "2025-05-14T09:00:00", subject: "Geography", specLink: "/countdown/specs/Geography.pdf" },
+      { name: "Economics Paper 1", date: "2025-05-14T11:00:00", subject: "Economics", specLink: "/countdown/specs/Economics.pdf" },
+      { name: "Mathematics Paper 1", date: "2025-05-15T13:00:00", subject: "Mathematics", specLink: "/countdown/specs/Mathematics.pdf" },
+      { name: "Chemistry Paper 1", date: "2025-05-19T09:00:00", subject: "Chemistry", specLink: "/countdown/specs/Chemistry.pdf" },
+      { name: "English Literature Paper 2", date: "2025-05-20T09:00:00", subject: "English Literature", specLink: "/countdown/specs/english-literature.PDF" },
+      { name: "Sociology Paper 2", date: "2025-05-20T11:00:00", subject: "Sociology", specLink: "/countdown/specs/Sociology.pdf" },
+      { name: "Physics Paper 1", date: "2025-05-22T09:00:00", subject: "Physics", specLink: "/countdown/specs/Physics.pdf" },
+      { name: "Economics Paper 2", date: "2025-05-22T11:00:00", subject: "Economics", specLink: "/countdown/specs/Economics.pdf" },
+      { name: "English Language Paper 1", date: "2025-05-23T09:00:00", subject: "English Language", specLink: "/countdown/specs/english-language.PDF" },
+      { name: "Mathematics Paper 2", date: "2025-06-04T09:00:00", subject: "Mathematics", specLink: "/countdown/specs/Mathematics.pdf" },
+      { name: "English Language Paper 2", date: "2025-06-06T09:00:00", subject: "English Language", specLink: "/countdown/specs/english-language.PDF" },
+      { name: "Geography Paper 2", date: "2025-06-06T11:00:00", subject: "Geography", specLink: "/countdown/specs/Geography.pdf" },
+      { name: "Biology Paper 2", date: "2025-06-09T09:00:00", subject: "Biology", specLink: "/countdown/specs/Biology.pdf" },
+      { name: "Mathematics Paper 3", date: "2025-06-11T09:00:00", subject: "Mathematics", specLink: "/countdown/specs/Mathematics.pdf" },
+      { name: "Geography Paper 3", date: "2025-06-12T09:00:00", subject: "Geography", specLink: "/countdown/specs/Geography.pdf" },
+      { name: "Chemistry Paper 2", date: "2025-06-13T09:00:00", subject: "Chemistry", specLink: "/countdown/specs/Chemistry.pdf" },
+      { name: "Physics Paper 2", date: "2025-06-16T09:00:00", subject: "Physics", specLink: "/countdown/specs/Physics.pdf" }
+    ];
+
+    const examsContainer = document.getElementById('exams');
+    const viewToggleButton = document.getElementById('viewToggle');
+    let viewAllExams = true;
+
+    function groupBySubject() {
+      return exams.reduce((acc, exam) => {
+        if (!acc[exam.subject]) acc[exam.subject] = [];
+        acc[exam.subject].push(exam);
+        return acc;
+      }, {});
+    }
+
+    function updateCountdowns() {
+      examsContainer.innerHTML = '';
+      const groupedExams = groupBySubject();
+
+      if (viewAllExams) {
+        exams.forEach((exam, index) => {
+          createExamElement(exam);
+          if (exam.name === "English Language Paper 1") {
+            const halfTerm = document.createElement('div');
+            halfTerm.className = 'half-term';
+            halfTerm.textContent = 'HALF TERM';
+            examsContainer.appendChild(halfTerm);
+          }
+        });
+      } else {
+        for (const subject in groupedExams) {
+          const subjectContainer = document.createElement('div');
+          const subjectTitle = document.createElement('h2');
+          subjectTitle.textContent = subject;
+          subjectContainer.appendChild(subjectTitle);
+
+          groupedExams[subject].forEach(exam => {
+            createExamElement(exam, subjectContainer);
+          });
+
+          examsContainer.appendChild(subjectContainer);
+        }
+      }
+    }
+
+    function createExamElement(exam, container = examsContainer) {
+      const now = new Date();
+      const examDate = new Date(exam.date);
+      const timeDiff = examDate - now;
+
+      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+      const examElement = document.createElement('div');
+      examElement.className = 'exam';
+
+      const titleElement = document.createElement('a');
+      titleElement.className = 'exam-title';
+      titleElement.textContent = exam.name;
+      titleElement.href = exam.specLink;
+      titleElement.target = '_blank';
+
+      const dateElement = document.createElement('div');
+      dateElement.className = 'exam-date';
+      dateElement.textContent = examDate.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      const countdownElement = document.createElement('div');
+      countdownElement.className = 'countdown';
+      countdownElement.textContent = timeDiff > 0
+        ? `Time remaining: ${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`
+        : 'Exam has started or already passed.';
+
+      examElement.appendChild(titleElement);
+      examElement.appendChild(dateElement);
+      examElement.appendChild(countdownElement);
+      container.appendChild(examElement);
+    }
+
+    // Initialize countdown
+    updateCountdowns();
+    setInterval(updateCountdowns, 1000);
+
+    viewToggleButton.addEventListener('click', () => {
+      viewAllExams = !viewAllExams;
+      viewToggleButton.textContent = viewAllExams ? 'View all exams' : 'View by subject';
+      updateCountdowns();
+    });
+
+    // Toggle between exam countdown and quiz
+    const quizToggle = document.getElementById('quizToggle');
+    const examCountdownContainer = document.getElementById('examCountdownContainer');
+    const quizContainer = document.getElementById('quizContainer');
+    const quizControls = document.getElementById('quizControls');
+    const feedbackDiv = document.getElementById('feedback');
+
+    let showingQuiz = false;
+
+    function toggleViews() {
+      showingQuiz = !showingQuiz;
+      
+      if (showingQuiz) {
+        examCountdownContainer.style.display = 'none';
+        quizContainer.style.display = 'block';
+        quizControls.style.display = 'flex';
+        feedbackDiv.style.display = 'block';
+        quizToggle.textContent = 'Switch to Timetable';
+      } else {
+        examCountdownContainer.style.display = 'block';
+        quizContainer.style.display = 'none';
+        quizControls.style.display = 'none';
+        feedbackDiv.style.display = 'none';
+        quizToggle.textContent = 'Switch to Quiz';
+      }
+    }
+
+    quizToggle.addEventListener('click', toggleViews);
+
+    // Dark Mode Toggle
+    document.getElementById('darkModeToggle').addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+    });
+
+    // Quiz Generator Functionality
+    let questions = [];
+    let shuffledQuestions = [];
+    let currentQuestionIndex = 0;
+    let quizMode = false;
+    let selectedOption = null;
+    let currentQuestion = null;
+    let answerSubmitted = false;
+
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const fileNameDisplay = document.getElementById('fileName');
+    const submitBtn = document.getElementById('submitBtn');
+    const retryBtn = document.getElementById('retryButton');
+    const nextBtn = document.getElementById('nextButton');
+    const learnBtn = document.getElementById('learnBtn');
+    const questionList = document.getElementById('questionList');
+
+    // File upload handling
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      fileUploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      fileUploadArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      fileUploadArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight() {
+      fileUploadArea.classList.add('active');
+    }
+
+    function unhighlight() {
+      fileUploadArea.classList.remove('active');
+    }
+
+    fileUploadArea.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files.length) {
+        handleFiles(files);
+      }
+    }
+
+    fileInput.addEventListener('change', function (e) {
+      if (this.files.length) {
+        handleFiles(this.files);
+      }
+    });
+
+    function handleFiles(files) {
+      const file = files[0];
+      if (file.type !== 'text/plain' && !file.name.endsWith('.txt')) {
+        alert('Please upload a .txt file');
+        return;
+      }
+      
+      fileNameDisplay.textContent = file.name;
+      
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const text = event.target.result;
+        parseQuestions(text);
+        listQuestions();
+      };
+      reader.readAsText(file);
+    }
+
+    learnBtn.addEventListener('click', function () {
+      if (questions.length === 0) {
+        alert('Please load questions first!');
+        return;
+      }
+      shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+      currentQuestionIndex = 0;
+      quizMode = true;
+      resetQuizState();
+      updateActiveQuestion();
+      showShuffledQuestion();
+      
+      // Switch to quiz view when starting learning session
+      if (!showingQuiz) {
+        toggleViews();
+      }
+    });
+
+    function resetQuizState() {
+      selectedOption = null;
+      answerSubmitted = false;
+      submitBtn.style.display = 'none';
+      retryBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
+      feedbackDiv.className = "feedback";
+      feedbackDiv.textContent = "";
+    }
+
+    submitBtn.addEventListener('click', function() {
+      if (selectedOption === null) return;
+      
+      answerSubmitted = true;
+      const isCorrect = selectedOption === currentQuestion.correctIndex;
+      
+      // Show feedback
+      if (isCorrect) {
+        feedbackDiv.textContent = "Correct!";
+        feedbackDiv.className = "feedback correct";
+        nextBtn.style.display = 'inline-block';
+        retryBtn.style.display = 'none';
+      } else {
+        feedbackDiv.textContent = "Incorrect! The correct answer is: " + 
+          String.fromCharCode(65 + currentQuestion.correctIndex) + ". " + 
+          currentQuestion.options[currentQuestion.correctIndex];
+        feedbackDiv.className = "feedback incorrect";
+        retryBtn.style.display = 'inline-block';
+        nextBtn.style.display = 'none';
+      }
+      
+      // Highlight the correct answer
+      const optionElements = document.querySelectorAll('.option');
+      optionElements.forEach((btn, i) => {
+        btn.style.cursor = 'default';
+        if (i === currentQuestion.correctIndex) {
+          btn.classList.add('correct');
+        } else if (i === selectedOption && !isCorrect) {
+          btn.classList.add('incorrect');
+        }
+      });
+      
+      submitBtn.style.display = 'none';
+    });
+
+    retryBtn.addEventListener('click', function() {
+      resetQuizState();
+      renderQuestion(currentQuestion);
+    });
+
+    nextBtn.addEventListener('click', function () {
+      if (quizMode) {
+        currentQuestionIndex++;
+        showShuffledQuestion();
+      } else {
+        // When not in quiz mode, go to next question in original order
+        if (currentQuestionIndex < questions.length - 1) {
+          currentQuestionIndex++;
+          renderQuestion(questions[currentQuestionIndex]);
+        } else {
+          // If at last question, loop back to first
+          currentQuestionIndex = 0;
+          renderQuestion(questions[currentQuestionIndex]);
+        }
+      }
+      resetQuizState();
+      updateActiveQuestion();
+    });
+
+    function parseQuestions(text) {
+      const entries = text.trim().split(/\n(?=Q: )/);
+      questions = entries.map(entry => {
+        const lines = entry.split('\n');
+        const q = lines[0].replace('Q: ', '').trim();
+        const options = lines.slice(1, 5).map(line => line.slice(3).trim());
+        const correctLetter = lines[5].split(': ')[1].trim();
+        const correctIndex = correctLetter.charCodeAt(0) - 65;
+        return { q, options, correctIndex };
+      });
+    }
+
+    function listQuestions() {
+      questionList.innerHTML = '';
+      questions.forEach((q, i) => {
+        const btn = document.createElement('div');
+        btn.className = 'question-link';
+        btn.textContent = `Question ${i + 1}`;
+        btn.onclick = () => {
+          quizMode = false;
+          currentQuestionIndex = i;
+          resetQuizState();
+          renderQuestion(questions[i]);
+          updateActiveQuestion();
+          
+          // Switch to quiz view when selecting a question
+          if (!showingQuiz) {
+            toggleViews();
+          }
+        };
+        questionList.appendChild(btn);
+      });
+    }
+
+    function updateActiveQuestion() {
+      document.querySelectorAll('.question-link').forEach((link, i) => {
+        const isActive = quizMode 
+          ? shuffledQuestions[currentQuestionIndex] === questions[i]
+          : currentQuestionIndex === i;
+        link.classList.toggle('active', isActive);
+      });
+    }
+
+    function showShuffledQuestion() {
+      if (currentQuestionIndex >= shuffledQuestions.length) {
+        quizContainer.innerHTML = '<h2>Quiz Completed!</h2><p>You have finished all questions.</p>';
+        document.getElementById('quizControls').style.display = 'none';
+        return;
+      }
+      renderQuestion(shuffledQuestions[currentQuestionIndex], true);
+    }
+
+    function renderQuestion(question, isShuffled = false) {
+      currentQuestion = question;
+      answerSubmitted = false;
+
+      quizContainer.innerHTML = `<h2>${question.q}</h2>`;
+      question.options.forEach((opt, i) => {
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.textContent = `${String.fromCharCode(65 + i)}. ${opt}`;
+        div.dataset.index = i;
+        quizContainer.appendChild(div);
+      });
+
+      const optionElements = document.querySelectorAll('.option');
+      optionElements.forEach(opt => {
+        opt.addEventListener('click', function() {
+          if (answerSubmitted) return;
+          
+          optionElements.forEach(btn => {
+            btn.classList.remove('selected');
+            btn.style.cursor = 'pointer';
+          });
+          this.classList.add('selected');
+          selectedOption = parseInt(this.dataset.index);
+          submitBtn.style.display = 'inline-block';
+        });
+      });
+    }
+
+    // Initialize with exam timetable visible
+    examCountdownContainer.style.display = 'block';
+    quizContainer.style.display = 'none';
+    quizControls.style.display = 'none';
+    feedbackDiv.style.display = 'none';
+  </script>
+</body>
+</html>
